@@ -57,7 +57,9 @@ def get_all_by_visist_order():
     return jsonify(serializer), 200
 
 
-def update_lead(email: str):
+def update_lead():
+    data = request.get_json()
+    email = data['email']
 
     try:
         lead = current_app.db.session.query(LeadModel).filter_by(email=email)
@@ -83,21 +85,14 @@ def update_lead(email: str):
         return {'error': 'Lead not found, please check the email address'}, 404
 
 
-def delete_lead(email: str):
-
+def delete_lead():
+    data = request.get_json()
+    email = data['email']
+    
     try:
-        lead = current_app.db.session.query(LeadModel).filter_by(email=email)
-        serializer = [
-                {
-                    "id": leads.id
-                } for leads in lead
-            ]
+        lead = current_app.db.session.query(LeadModel).filter_by(email=email).one()
 
-        data = serializer[0]['id']
-
-        id = LeadModel.query.get(data)
-
-        current_app.db.session.delete(id)
+        current_app.db.session.delete(lead)
         current_app.db.session.commit()
 
         return '', 204
